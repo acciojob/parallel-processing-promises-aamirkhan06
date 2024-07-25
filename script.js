@@ -1,4 +1,7 @@
 //your JS code here. If required.
+// const output = document.getElementById("output");
+// const btn = document.getElementById("download-images-button");
+
 const output = document.getElementById("output");
 const btn = document.getElementById("download-images-button");
 
@@ -8,39 +11,22 @@ const images = [
   { url: "https://picsum.photos/id/239/200/300" },
 ];
 
-
-// script.js
-
-const outputDiv = document.getElementById("output");
-const downloadButton = document.getElementById("download-images-button");
-
-// Function to download an image
-async function downloadImage(image) {
-  try {
-    const response = await fetch(image.url);
-    if (!response.ok) {
-      throw new Error(`Failed to load image's URL: ${image.url}`);
-    }
-    const blob = await response.blob();
-    const imageUrl = URL.createObjectURL(blob);
-    return imageUrl;
-  } catch (error) {
-    console.error(error.message);
-    throw error;
-  }
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = url;
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(`Failed to load image's URL: ${url}`);
+  });
 }
 
-// Event listener for button click
-downloadButton.addEventListener("click", async () => {
+btn.addEventListener("click", async () => {
   try {
-    const imageUrls = await Promise.all(images.map(downloadImage));
-    imageUrls.forEach((imageUrl) => {
-      const imgElement = document.createElement("img");
-      imgElement.src = imageUrl;
-      outputDiv.appendChild(imgElement);
+    const loadedImages = await Promise.all(images.map(image => loadImage(image.url)));
+    loadedImages.forEach(img => {
+      output.appendChild(img);
     });
   } catch (error) {
-    console.error("Error downloading images:", error.message);
+    console.error(error);
   }
 });
-
